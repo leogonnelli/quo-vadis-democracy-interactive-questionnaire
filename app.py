@@ -243,12 +243,11 @@ def render_submit_panel():
     )
 
     st.code(
-        "mailto:YOUR_EMAIL@example.com?subject=Digital%20Agora%20Response",
+        "mailto:leonardo.gonnelli@student.unisg.ch?subject=Digital%20Agora%20Response",
         language="text",
     )
     st.caption(
-        "Replace YOUR_EMAIL@example.com with your address and ask participants "
-        "to paste the summary into an email."
+        "Ask participants to paste the generated summary into an email and send it."
     )
 
     if st.button("Mark as submitted", type="primary"):

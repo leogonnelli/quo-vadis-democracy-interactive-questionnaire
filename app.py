@@ -30,10 +30,6 @@ QUIZ_OPTIONS = {
 
 COMMUNITY_RULE_SEEDS = [
     "No behavioral advertising of any kind.",
-    "Data minimization by default: collect only what is needed for safety.",
-    "Chronological feed with user-controlled ranking options.",
-    "Human appeal process for every moderation decision.",
-    "Open algorithm audits accessible to citizens.",
 ]
 
 

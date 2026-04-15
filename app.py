@@ -46,6 +46,7 @@ def init_state():
         "compass_structure": 50,
         "compass_threat": 50,
         "compass_role": 50,
+        "subject_object_lens": "I can sometimes step back and examine it",
         "quiz_q1": QUIZ_OPTIONS["q1"][0],
         "quiz_q2": QUIZ_OPTIONS["q2"][0],
         "quiz_q3": QUIZ_OPTIONS["q3"][1],
@@ -110,7 +111,8 @@ def build_summary() -> str:
         f"Biggest threat (State<->Market): {st.session_state.compass_threat}/100 "
         f"({scale_label(st.session_state.compass_threat, 'State', 'Market')})\n"
         f"My role (Observer<->Actor): {st.session_state.compass_role}/100 "
-        f"({scale_label(st.session_state.compass_role, 'Observer', 'Actor')})\n\n"
+        f"({scale_label(st.session_state.compass_role, 'Observer', 'Actor')})\n"
+        f"Subject-Object lens: {st.session_state.subject_object_lens}\n\n"
         "3) Epistemic Inequality Quiz\n"
         f"Q1: {st.session_state.quiz_q1}\n"
         f"Q2: {st.session_state.quiz_q2}\n"
@@ -182,6 +184,19 @@ def render_compass():
         100,
         int(st.session_state.compass_role),
     )
+    subject_object_options = [
+        "I am part of the system",
+        "I mostly experience the system as given",
+        "I can sometimes step back and examine it",
+        "I can analyze the system and my position in it",
+        "I can view the system from outside and shape it",
+    ]
+    st.session_state.subject_object_lens = st.select_slider(
+        "Do you see democracy as something that happens to you (Subject), "
+        "or something you can step back and analyze/shape (Object)?",
+        options=subject_object_options,
+        value=st.session_state.subject_object_lens,
+    )
 
     labels = [
         scale_label(st.session_state.compass_structure, "Structure", "Feeling"),
@@ -205,6 +220,9 @@ def render_compass():
     st.info(
         "Reflection: You are currently looking at democracy through this lens. "
         "Can you step back and observe the lens itself?"
+    )
+    st.info(
+        f"Subject-Object lens selected: {st.session_state.subject_object_lens}."
     )
 
 
@@ -321,6 +339,7 @@ def render_submit_panel():
             "compass_structure": st.session_state.compass_structure,
             "compass_threat": st.session_state.compass_threat,
             "compass_role": st.session_state.compass_role,
+            "subject_object_lens": st.session_state.subject_object_lens,
             "quiz_q1": st.session_state.quiz_q1,
             "quiz_q2": st.session_state.quiz_q2,
             "quiz_q3": st.session_state.quiz_q3,

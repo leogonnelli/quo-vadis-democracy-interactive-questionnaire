@@ -3,7 +3,6 @@ import json
 import urllib.parse
 from io import BytesIO
 
-import plotly.express as px
 import streamlit as st
 
 st.set_page_config(page_title="Digital Agora", page_icon="🗳️", layout="centered")
@@ -45,8 +44,8 @@ def init_state():
         "translation": "",
         "compass_structure": 50,
         "compass_threat": 50,
-        "compass_role": 50,
         "subject_object_lens": "I can sometimes step back and examine it",
+        "compass_reflection": "",
         "quiz_q1": QUIZ_OPTIONS["q1"][0],
         "quiz_q2": QUIZ_OPTIONS["q2"][0],
         "quiz_q3": QUIZ_OPTIONS["q3"][1],
@@ -110,9 +109,8 @@ def build_summary() -> str:
         f"({scale_label(st.session_state.compass_structure, 'Structure', 'Feeling')})\n"
         f"Biggest threat (State<->Market): {st.session_state.compass_threat}/100 "
         f"({scale_label(st.session_state.compass_threat, 'State', 'Market')})\n"
-        f"My role (Observer<->Actor): {st.session_state.compass_role}/100 "
-        f"({scale_label(st.session_state.compass_role, 'Observer', 'Actor')})\n"
         f"Subject-Object lens: {st.session_state.subject_object_lens}\n\n"
+        f"Lens reflection: {st.session_state.compass_reflection.strip() or 'N/A'}\n\n"
         "3) Epistemic Inequality Quiz\n"
         f"Q1: {st.session_state.quiz_q1}\n"
         f"Q2: {st.session_state.quiz_q2}\n"
@@ -178,12 +176,6 @@ def render_compass():
         100,
         int(st.session_state.compass_threat),
     )
-    st.session_state.compass_role = st.slider(
-        "My role is: Observer <-> Actor",
-        0,
-        100,
-        int(st.session_state.compass_role),
-    )
     subject_object_options = [
         "I am part of the system",
         "I mostly experience the system as given",
@@ -197,32 +189,17 @@ def render_compass():
         options=subject_object_options,
         value=st.session_state.subject_object_lens,
     )
-
-    labels = [
-        scale_label(st.session_state.compass_structure, "Structure", "Feeling"),
-        scale_label(st.session_state.compass_threat, "State", "Market"),
-        scale_label(st.session_state.compass_role, "Observer", "Actor"),
-    ]
-    fig = px.bar(
-        x=["Democracy lens", "Threat lens", "Role lens"],
-        y=[
-            st.session_state.compass_structure,
-            st.session_state.compass_threat,
-            st.session_state.compass_role,
-        ],
-        text=labels,
-        range_y=[0, 100],
-        labels={"x": "", "y": "Position on scale"},
-        title="Your current democratic lens",
-    )
-    fig.update_traces(textposition="outside")
-    st.plotly_chart(fig, use_container_width=True)
-    st.info(
+    st.session_state.compass_reflection = st.text_area(
         "Reflection: You are currently looking at democracy through this lens. "
-        "Can you step back and observe the lens itself?"
-    )
-    st.info(
-        f"Subject-Object lens selected: {st.session_state.subject_object_lens}."
+        "Can you step back and observe that lens? In 2-4 sentences, explain why "
+        "you think this lens fits how you currently see the world.",
+        value=st.session_state.compass_reflection,
+        max_chars=700,
+        height=130,
+        placeholder=(
+            "Example: I chose this lens because I usually react to institutions as fixed, "
+            "but recently I started noticing how platforms shape what I consider normal."
+        ),
     )
 
 
@@ -338,8 +315,8 @@ def render_submit_panel():
             "translation": st.session_state.translation,
             "compass_structure": st.session_state.compass_structure,
             "compass_threat": st.session_state.compass_threat,
-            "compass_role": st.session_state.compass_role,
             "subject_object_lens": st.session_state.subject_object_lens,
+            "compass_reflection": st.session_state.compass_reflection,
             "quiz_q1": st.session_state.quiz_q1,
             "quiz_q2": st.session_state.quiz_q2,
             "quiz_q3": st.session_state.quiz_q3,

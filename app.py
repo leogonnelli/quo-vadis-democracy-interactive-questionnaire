@@ -142,7 +142,6 @@ def render_shadow_text():
         value=st.session_state.confession,
         max_chars=300,
         height=120,
-        placeholder="Example: I paused for 8 seconds on a political reel.",
     )
 
     if st.button("Translate to Surveillance Capital"):
@@ -196,10 +195,6 @@ def render_compass():
         value=st.session_state.compass_reflection,
         max_chars=700,
         height=130,
-        placeholder=(
-            "Example: I chose this lens because I usually react to institutions as fixed, "
-            "but recently I started noticing how platforms shape what I consider normal."
-        ),
     )
 
 
@@ -240,7 +235,6 @@ def render_sanctuary():
         value=st.session_state.sanctuary_rule,
         max_chars=240,
         height=110,
-        placeholder="Example: No behavioral ads, ever.",
     )
     if st.button("Add my rule to the community wall"):
         rule = st.session_state.sanctuary_rule.strip()

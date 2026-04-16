@@ -35,7 +35,9 @@ COMMUNITY_RULE_SEEDS = [
 
 def init_state():
     defaults = {
-        "page": "1) Shadow Text Mirror",
+        "page": "0) Welcome",
+        "started": False,
+        "consent": False,
         "confession": "",
         "translation": "",
         "compass_structure": 50,
@@ -47,6 +49,7 @@ def init_state():
         "quiz_q3": QUIZ_OPTIONS["q3"][1],
         "sanctuary_rule": "",
         "wall_rules": list(COMMUNITY_RULE_SEEDS),
+        "wall_rule_confirmed": False,
         "final_note": "",
         "submitted": False,
     }
@@ -123,6 +126,57 @@ def summary_download_bytes(summary_text: str) -> bytes:
     buffer = BytesIO()
     buffer.write(summary_text.encode("utf-8"))
     return buffer.getvalue()
+
+
+def render_welcome():
+    st.title("Welcome to the Digital Agora")
+    st.caption("A Space for Reflection on the Future of Democracy")
+
+    st.markdown(
+        """
+### 1) The Context (The “Why”)
+In her work, Shoshana Zuboff (2022) describes a “Death Match” between surveillance capitalism and democracy.
+She argues that while democracy “stood down,” a new institutional order moved in to claim our digital spaces,
+extracting our behavior for profit and staging an “epistemic coup”—seizing the authority to know and decide for us.
+
+This app is an outreach experiment designed to reclaim that space. It is a **Digital Sanctuary** where you are invited to pause,
+reflect, and define what democracy means to you in an age of total information extraction.
+
+### 2) Your Journey
+You will be guided through three short stages:
+- **Defining**: What does democracy look like from your personal perspective?
+- **Assessing**: What threats (like the “Shadow Text”) and chances do you perceive today?
+- **Visioning**: What improvements can you envision for a better societal functioning?
+
+### 3) Privacy & “Anti-Extraction” Design (Important)
+To honor the principles of democratic sovereignty:
+- **No server-side storage**: we do not store your data on a server.
+- **No tracking**: no cookies are used for tracking.
+- **You own your words**: at the end, your answers are compiled into a `.txt` file for you to download.
+
+**Consent:** By clicking **Start**, you agree to share your reflections via email with the researcher for the purpose of an academic project.
+Your identity will remain confidential in the final documentation.
+        """.strip()
+    )
+
+    st.session_state.consent = st.checkbox(
+        "I understand and consent to share my reflections via email for an academic project.",
+        value=bool(st.session_state.consent),
+    )
+
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button(
+            "Start",
+            type="primary",
+            use_container_width=True,
+            disabled=not st.session_state.consent,
+        ):
+            st.session_state.started = True
+            st.session_state.page = "1) Shadow Text Mirror"
+            st.rerun()
+    with col2:
+        st.button("Not now", use_container_width=True, disabled=True)
 
 
 def render_shadow_text():
@@ -226,6 +280,10 @@ def render_epistemic_quiz():
 def render_sanctuary():
     st.header("4) Sanctuary Wishlist")
     st.caption("Focus: designing a digital public square immune to surveillance logic.")
+    st.info(
+        "Important: to finish the experience, you must click **“Add my rule to the community wall”**. "
+        "Typing a rule alone won’t unlock the final step."
+    )
     st.session_state.sanctuary_rule = st.text_area(
         "If you could build a digital sanctuary, what ONE rule must it have?",
         value=st.session_state.sanctuary_rule,
@@ -237,9 +295,11 @@ def render_sanctuary():
         if not rule:
             st.warning("Write one rule before adding it.")
         elif rule in st.session_state.wall_rules:
+            st.session_state.wall_rule_confirmed = True
             st.info("This rule is already on the wall.")
         else:
             st.session_state.wall_rules.append(rule)
+            st.session_state.wall_rule_confirmed = True
             st.success("Rule added to the wall.")
 
     st.markdown("### Community Wall")
@@ -262,10 +322,12 @@ def render_submit_panel():
         bool(st.session_state.confession.strip())
         and bool(st.session_state.translation.strip())
         and bool(st.session_state.sanctuary_rule.strip())
+        and bool(st.session_state.wall_rule_confirmed)
     )
     if not required_ready:
         st.warning(
-            "Complete the confession + translation and add one sanctuary rule before finalizing."
+            "To unlock the final step, complete the confession + translation, then go to "
+            "**4) Sanctuary Wishlist** and click **“Add my rule to the community wall”**."
         )
         return
 
@@ -319,26 +381,47 @@ def render_submit_panel():
 
 init_state()
 
-st.title("Digital Agora")
-st.caption(
-    "A reflective civic experience on surveillance capitalism, epistemic power, "
-    "and democratic imagination."
-)
+if not st.session_state.started:
+    st.session_state.page = "0) Welcome"
 
 progress_lookup = {
+    "0) Welcome": 0,
     "1) Shadow Text Mirror": 1,
     "2) Democracy Compass": 2,
     "3) Epistemic Inequality Quiz": 3,
     "4) Sanctuary Wishlist": 4,
 }
 
+nav_options = ["0) Welcome"]
+if st.session_state.started:
+    nav_options += [
+        "1) Shadow Text Mirror",
+        "2) Democracy Compass",
+        "3) Epistemic Inequality Quiz",
+        "4) Sanctuary Wishlist",
+    ]
+
 st.session_state.page = st.sidebar.radio(
     "Navigate",
-    list(progress_lookup.keys()),
-    index=list(progress_lookup.keys()).index(st.session_state.page),
+    nav_options,
+    index=nav_options.index(st.session_state.page),
 )
-st.sidebar.progress(progress_lookup[st.session_state.page] / 4)
-st.sidebar.caption(f"Step {progress_lookup[st.session_state.page]} of 4")
+total_steps = 4
+current_step = progress_lookup.get(st.session_state.page, 0)
+st.sidebar.progress(min(max(current_step, 0), total_steps) / total_steps)
+if st.session_state.page == "0) Welcome":
+    st.sidebar.caption("Introduction")
+else:
+    st.sidebar.caption(f"Step {current_step} of {total_steps}")
+
+if st.session_state.page == "0) Welcome":
+    render_welcome()
+else:
+    st.title("Digital Agora")
+    st.caption(
+        "A reflective civic experience on surveillance capitalism, epistemic power, "
+        "and democratic imagination."
+    )
 
 if st.session_state.page == "1) Shadow Text Mirror":
     render_shadow_text()
@@ -346,7 +429,8 @@ elif st.session_state.page == "2) Democracy Compass":
     render_compass()
 elif st.session_state.page == "3) Epistemic Inequality Quiz":
     render_epistemic_quiz()
-else:
+elif st.session_state.page == "4) Sanctuary Wishlist":
     render_sanctuary()
 
-render_submit_panel()
+if st.session_state.started and st.session_state.page != "0) Welcome":
+    render_submit_panel()

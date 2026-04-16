@@ -134,7 +134,7 @@ def render_welcome():
 
     st.markdown(
         """
-### 1) The Context (The “Why”)
+### 1) The Context
 In her work, Shoshana Zuboff (2022) describes a “Death Match” between surveillance capitalism and democracy.
 She argues that while democracy “stood down,” a new institutional order moved in to claim our digital spaces,
 extracting our behavior for profit and staging an “epistemic coup”—seizing the authority to know and decide for us.
@@ -148,7 +148,7 @@ You will be guided through three short stages:
 - **Assessing**: What threats (like the “Shadow Text”) and chances do you perceive today?
 - **Visioning**: What improvements can you envision for a better societal functioning?
 
-### 3) Privacy & “Anti-Extraction” Design (Important)
+### 3) Privacy & “Anti-Extraction” Design
 To honor the principles of democratic sovereignty:
 - **No server-side storage**: we do not store your data on a server.
 - **No tracking**: no cookies are used for tracking.

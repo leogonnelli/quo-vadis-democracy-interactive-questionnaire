@@ -30,6 +30,7 @@ QUIZ_OPTIONS = {
 
 COMMUNITY_RULE_SEEDS = [
     "No behavioral advertising of any kind.",
+    "Personal data is not gathered and stored to be sold to third parties or governments.",
 ]
 
 

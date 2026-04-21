@@ -1,5 +1,4 @@
 import datetime as dt
-import json
 import urllib.parse
 from io import BytesIO
 
@@ -31,6 +30,8 @@ QUIZ_OPTIONS = {
 COMMUNITY_RULE_SEEDS = [
     "No behavioral advertising of any kind.",
     "Personal data is not gathered and stored to be sold to third parties or governments.",
+    "Preserve the anonymity of each person.",
+    "Personal data can only be kept for 3 years.",
 ]
 
 
@@ -285,6 +286,14 @@ def render_sanctuary():
         "Important: to finish the experience, you must click **“Add my rule to the community wall”**. "
         "Typing a rule alone won’t unlock the final step."
     )
+    st.markdown(
+        """
+Before you can send the email, complete this sequence:
+1. Write your rule in the field below.
+2. Click **Add my rule to the community wall**.
+3. Confirm your rule appears in the wall list.
+        """.strip()
+    )
     st.session_state.sanctuary_rule = st.text_area(
         "If you could build a digital sanctuary, what ONE rule must it have?",
         value=st.session_state.sanctuary_rule,
@@ -318,6 +327,11 @@ def render_sanctuary():
 def render_submit_panel():
     st.divider()
     st.subheader("Final Step - Send your response")
+    st.info(
+        "Email sending unlocks only after you add your rule to the community wall. "
+        "If the email button is not visible, go back to **4) Sanctuary Wishlist** "
+        "and click **Add my rule to the community wall**."
+    )
 
     required_ready = (
         bool(st.session_state.confession.strip())
@@ -356,28 +370,25 @@ def render_submit_panel():
         f"{urllib.parse.quote('Digital Agora Response')}&body="
         f"{urllib.parse.quote(summary_text)}"
     )
-    st.link_button("Open email draft", mailto_link, use_container_width=True)
-
-    if st.button("Mark as submitted", type="primary"):
-        st.session_state.submitted = True
-        st.success("Thank you. Copy/download your summary and send it by email.")
-
-    if st.session_state.submitted:
-        payload = {
-            "confession": st.session_state.confession,
-            "translation": st.session_state.translation,
-            "compass_structure": st.session_state.compass_structure,
-            "compass_threat": st.session_state.compass_threat,
-            "subject_object_lens": st.session_state.subject_object_lens,
-            "compass_reflection": st.session_state.compass_reflection,
-            "quiz_q1": st.session_state.quiz_q1,
-            "quiz_q2": st.session_state.quiz_q2,
-            "quiz_q3": st.session_state.quiz_q3,
-            "sanctuary_rule": st.session_state.sanctuary_rule,
-            "final_note": st.session_state.final_note,
-        }
-        st.markdown("**Structured JSON copy (optional):**")
-        st.code(json.dumps(payload, indent=2), language="json")
+    st.markdown(
+        f"""
+<a href="{mailto_link}" target="_self"
+   style="
+       display: block;
+       text-align: center;
+       text-decoration: none;
+       background-color: #d62728;
+       color: white;
+       padding: 0.7rem 1rem;
+       border-radius: 0.5rem;
+       font-weight: 600;
+       margin-top: 0.3rem;">
+   Final Step: Open email draft
+</a>
+        """.strip(),
+        unsafe_allow_html=True,
+    )
+    st.caption("After opening the draft, send the email to complete your participation.")
 
 
 init_state()

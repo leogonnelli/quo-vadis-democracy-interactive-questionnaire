@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.venv/
+venv/
+env/
+.python-version
+
+# Streamlit/local settings
+.streamlit/secrets.toml
+
+# IDE
+.vscode/
+.idea/
+
+# OS / temp
+*.log
+*.tmp
+*.swp
+
+# Documents you don't want in git
+*.docx
